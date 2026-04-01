@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
 
@@ -23,6 +24,15 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Override LoginResponse: redirect to /portal after successful login
+        $this->app->instance(LoginResponse::class, new class implements LoginResponse
+        {
+            public function toResponse($request)
+            {
+                return redirect('/portal');
+            }
+        });
+
         $this->app->instance(RegisterResponse::class, new class implements RegisterResponse
         {
             public function toResponse($request)
@@ -65,9 +75,12 @@ class FortifyServiceProvider extends ServiceProvider
                 return redirect()->route('register');
             }
 
-            return view('auth.login', [
+            return \Inertia\Inertia::render('Login', [
+                'csrf_token' => csrf_token(),
                 'is_registration_enabled' => $settings->is_registration_enabled,
-                'enabled_oauth_providers' => $enabled_oauth_providers,
+                'enabled_oauth_providers' => $enabled_oauth_providers->pluck('provider'),
+                'status' => session('status'),
+                'errors' => session()->get('errors') ? session()->get('errors')->getBag('default')->getMessages() : [],
             ]);
         });
 

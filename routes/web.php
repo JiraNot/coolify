@@ -110,6 +110,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
     Route::get('/onboarding', BoardingIndex::class)->name('onboarding');
 
+    // Reforged Portal Routes (Vercel Style)
+    Route::prefix('portal')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Portal\DashboardController::class, 'index'])->name('portal.dashboard');
+        Route::get('/project/{uuid}', [\App\Http\Controllers\Portal\DashboardController::class, 'show'])->name('portal.project.show');
+        
+        // Portal Resource Actions
+        Route::post('/resource/{type}/{uuid}/start', [\App\Http\Controllers\Portal\ResourceActionController::class, 'start'])->name('portal.resource.start');
+        Route::post('/resource/{type}/{uuid}/stop', [\App\Http\Controllers\Portal\ResourceActionController::class, 'stop'])->name('portal.resource.stop');
+        Route::post('/resource/{type}/{uuid}/restart', [\App\Http\Controllers\Portal\ResourceActionController::class, 'restart'])->name('portal.resource.restart');
+    });
+
     Route::get('/subscription', SubscriptionShow::class)->name('subscription.show');
     Route::get('/subscription/new', SubscriptionIndex::class)->name('subscription.index');
 

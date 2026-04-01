@@ -1,0 +1,6 @@
+# WSL2 Fix: Remove MinIO external port bindings
+# MinIO is only needed internally by Coolify, not from the host.
+# WSL2 Docker Desktop cannot forward these ports (status 500 error).
+services:
+  minio:
+    ports: []

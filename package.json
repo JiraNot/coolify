@@ -7,13 +7,20 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@inertiajs/react": "^3.0.1",
         "@tailwindcss/postcss": "4.1.18",
+        "@vitejs/plugin-react": "^6.0.1",
         "@vitejs/plugin-vue": "6.0.3",
         "axios": "1.13.2",
+        "clsx": "^2.1.1",
         "laravel-echo": "2.2.7",
         "laravel-vite-plugin": "2.0.1",
+        "lucide-react": "^1.7.0",
         "postcss": "8.5.6",
         "pusher-js": "8.4.0",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4",
+        "tailwind-merge": "^3.5.0",
         "tailwind-scrollbar": "4.0.2",
         "tailwindcss": "4.1.18",
         "vite": "7.3.0",
@@ -24,6 +31,7 @@
         "@tailwindcss/typography": "0.5.16",
         "@xterm/addon-fit": "0.10.0",
         "@xterm/xterm": "5.5.0",
+        "framer-motion": "^12.38.0",
         "ioredis": "5.6.1",
         "playwright": "^1.58.2"
     }

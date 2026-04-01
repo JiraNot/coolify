@@ -28,7 +28,12 @@ class AppServiceProvider extends ServiceProvider
         $this->configurePasswords();
         $this->configureSanctumModel();
         $this->configureGitHubHttp();
+        $this->configureInertia();
+    }
 
+    private function configureInertia(): void
+    {
+        \Inertia\Inertia::setRootView('inertia');
     }
 
     private function configureCommands(): void

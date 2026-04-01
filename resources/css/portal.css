@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #000;
+  --color-foreground: #fff;
+  --color-border: #1f1f1f;
+  --color-muted: #666;
+  --color-accent: #111;
+  
+  /* Vercel Specific Colors */
+  --color-vercel-blue: #0070f3;
+  --color-vercel-gray: #333;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-white selection:bg-white/20;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .vercel-card {
+    @apply bg-black border border-[#1f1f1f] rounded-xl p-6 transition-all hover:border-[#444] hover:bg-[#050505];
+  }
+  
+  .status-dot {
+    @apply w-1.5 h-1.5 rounded-full inline-block mr-2;
+  }
+  
+  .status-running { 
+    @apply bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]; 
+  }
+  
+  .status-stopped { 
+    @apply bg-zinc-700; 
+  }
+  
+  .status-error { 
+    @apply bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.3)]; 
+  }
+}
