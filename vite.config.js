@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
                     "**/storage/**",
                 ],
             },
+            port: 5174,
             host: "0.0.0.0",
             hmr: {
                 host: env.VITE_HOST || '0.0.0.0'

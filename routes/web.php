@@ -114,7 +114,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('portal')->group(function () {
         Route::get('/', [\App\Http\Controllers\Portal\DashboardController::class, 'index'])->name('portal.dashboard');
         Route::get('/project/{uuid}', [\App\Http\Controllers\Portal\DashboardController::class, 'show'])->name('portal.project.show');
-        
+        Route::get('/project/{project_uuid}/environment/{environment_uuid}/new', [\App\Http\Controllers\Portal\DashboardController::class, 'newResource'])->name('portal.project.resource.new');
+        Route::get('/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}', [\App\Http\Controllers\Portal\DatabaseController::class, 'show'])->name('portal.project.database.show');
+
         // Portal Resource Actions
         Route::post('/resource/{type}/{uuid}/start', [\App\Http\Controllers\Portal\ResourceActionController::class, 'start'])->name('portal.resource.start');
         Route::post('/resource/{type}/{uuid}/stop', [\App\Http\Controllers\Portal\ResourceActionController::class, 'stop'])->name('portal.resource.stop');

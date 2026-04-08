@@ -70,9 +70,12 @@ const ProjectShow = ({ project, user, team }) => {
                         <ExternalLink className="w-4 h-4" />
                         Visit URL
                     </button>
-                    <button className="bg-white text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-[#eaeaea] transition-all transform hover:scale-[1.02]">
-                        Deploy Now
-                    </button>
+                    <Link 
+                        href={`/portal/project/${project.uuid}/environment/${currentEnv?.uuid}/new`}
+                        className="bg-white text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-[#eaeaea] transition-all transform hover:scale-[1.02]"
+                    >
+                        New Resource
+                    </Link>
                 </div>
             </div>
 
@@ -166,7 +169,12 @@ const ProjectShow = ({ project, user, team }) => {
                         <div className="py-20 text-center border border-dashed border-[#1f1f1f] rounded-xl text-[#444] text-sm bg-[#020202]">
                             <Layers className="w-8 h-8 mx-auto mb-3 opacity-20" />
                             <p>No resources found in this environment.</p>
-                            <button className="mt-4 text-xs text-blue-500 hover:text-blue-400 transition-colors font-medium">Add your first resource</button>
+                            <Link 
+                                href={`/portal/project/${project.uuid}/environment/${currentEnv?.uuid}/new`}
+                                className="mt-4 text-xs text-blue-500 hover:text-blue-400 transition-colors font-medium inline-block"
+                            >
+                                Add your first resource
+                            </Link>
                         </div>
                     )}
                 </motion.div>
