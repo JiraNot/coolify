@@ -58,6 +58,22 @@ git merge main
 5. **ระบบจัดการ Resource (Action Buttons)**
    - เชื่อมปุ่ม "Start", "Stop", "Restart" ให้ทำงานผ่าน Controller พิเศษ `ResourceActionController.php`
    - สั่งการผ่าน Inertia `router.post()` ทำให้ UI หมุน (Loading spinner) ระหว่างรอคำสั่งเข้าคิวของ Native Coolify
+6. **ระบบจัดการ Database (Advanced Management - High Parity)**
+    - บรรลุ Feature Parity 100% เทียบเท่า dashboard หลักของ Coolify
+    - แยก Tab ชัดเจน: Connection, Performance (Metrics), Logs (Stylized Terminal), Backups, Environment และ Settings
+    - ระบบ Deletion Flow ที่ปลอดภัย (Graceful Stop + Volume/Cleanup options)
+7. **Email Server Settings**
+    - พัฒนาหน้าจอตั้งค่า Email สำหรับ Team โดยเฉพาะ รองรับการเชื่อมต่อผ่าน SMTP และ Resend API
+    - ระบบ "Use Instance Settings" fallback และยูทิลิตี้ "Send Test Email"
+8. **Real-time Synchronization & Health Metrics**
+    - ติดตั้ง Laravel Echo เชื่อมต่อกับ Soketi อัปเดตสถานะแบบ Real-time
+    - MetricsChart (Premium UI) สำหรับ CPU/RAM Usage
+9. **ระบบจัดการ Service (Service Stack Logic)**
+    - แสดงโครงสร้าง ServiceApplications และ ServiceDatabases ภายใต้ Stack เดียวกัน
+10. **Application & Service Portal Revamp (High Parity)**
+    - ปรับปรุงหน้า Application และ Service ให้มี Tabbed UI มาตรฐานเดียวกับ Database
+    - ระบบ Log Streaming แบบ Real-time ที่รองรับการสลับ Target ใน Service Stack
+    - Standardized Action Buttons และ Danger Zone ครบทุก Resource Type
 
 ---
 
@@ -65,9 +81,10 @@ git merge main
 
 ส่วนนี้เป็นเป้าหมายในอนาคตเพื่อทำให้ Portal สมบูรณ์ที่สุด:
 
-- `[ ]` **Deep Links Configuration**: เนื่องจาก Portal ออกแบบมาให้ "ดูเรียบง่าย" ปุ่ม Setting (รูปฟันเฟือง) จะลิงก์หน้าต่างใหม่กลับไปที่หน้า Livewire ดั้งเดิมเพื่อให้ผู้ใช้แก้ไขตัวแปรลึกๆ (Env, Deploy) ได้
-- `[ ]` **Creation Flow (Add Resource)**: สร้างหน้าต่างหรือ Modal แบบ Vercel เวลาผู้ใช้ต้องการเพิ่ม App, Database, หรือ Service ใหม่ ให้เลือกจากรูปไอคอนสวยๆ ใน Portal
-- `[ ]` **Team Switcher & Settings Profile**: เพิ่มเมนูการปรับแต่ง Profile หรือ สลับ Team ด้านบนขวาแทนที่สัญลักษณ์ย่อตัวอักษร
+- `[x]` **Application & Service UI Parity**: ปรับปรุงหน้า Application และ Service ให้มี Tabbed UI มาตรฐานเดียวกับ Database (เพิ่ม dedicated Logs & Backups tab)
+- `[x]` **Deep Links Configuration**: ปุ่ม Setting (รูปฟันเฟือง) ลิงก์หน้าต่างใหม่กลับไปที่หน้า Livewire ดั้งเดิม
+- `[x]` **Creation Flow (Add Resource)**: สร้างหน้าต่างหรือ Modal แบบ Vercel สำหรับเลือก Type ของ Resource ที่ต้องการสร้าง
+- `[x]` **Team Switcher & Settings Profile**: ระบบสลับ Team และจัดการสิทธิ์ User
 
 ---
 
@@ -150,3 +167,79 @@ SESSION_DRIVER=redis # ควรใช้ Redis ถ้าเป็นไปไ�
 โครงสร้างหลักสำหรับใช้เปิดบริหารแพลตฟอร์มธุรกิจ (`onetapweb.com`):
 - **Package System**: สร้างแผนราคา (เช่น Mini, Pro, Business) ที่ผูกซ่อนไว้กับทรัพยากรที่จำกัดตามเพดานโควตา
 - **User Role**: แยกสิทธิ์ระหว่าง Admin (คุณ) ที่เห็นและปรับแต่งทุกอย่าง กับ Client (ลูกค้า) ที่เห็นเฉพาะแค่เว็บไซต์ของตัวเอง
+---
+
+## 🔗 แผนเชื่อมต่อ onetapweb_t3 (API Integration - เป้าหมายปัจจุบัน)
+
+สถาปัตยกรรมใหม่: Coolify ทำหน้าที่เป็น **Headless Deployment Engine** สำหรับ `onetapweb_t3`
+โดย Portal UI ยังคงอยู่ในฐานะ **Admin Dashboard** สำหรับทีม
+
+> [!NOTE]
+> แผน Shared Hosting (CyberPanel-like) ถูกระงับชั่วคราว โฟกัสไปที่การเชื่อมต่อกับ `onetapweb_t3` โดยตรงแทน
+
+### สถาปัตยกรรม (Architecture)
+
+| Layer | Role |
+|---|---|
+| **onetapweb_t3** (Master) | Auth, Billing, CRM, หน้าเว็บลูกค้า |
+| **Coolify** (Engine) | Deploy T3 เอง + สร้างเว็บย่อยลูกค้า |
+| **Bridge** | REST API /api/v1/ + Sanctum Personal Access Token |
+| **Feedback** | Webhook (Event-driven) จาก Coolify กลับหา T3 |
+
+### Workflow การสร้างเว็บย่อยให้ลูกค้า
+
+1. ลูกค้ากดจอง = T3 เรียก `POST /api/v1/services` (สร้าง WordPress + MariaDB)
+2. T3 เรียก `POST /api/v1/services/{uuid}/start` เพื่อ Deploy
+3. Coolify สร้างเสร็จ = ยิง Webhook กลับหา T3 อัตโนมัติ
+4. T3 รับ Webhook และอัปเดตสถานะลูกค้าในฐานข้อมูล
+
+### Next.js Webhook Receiver
+
+```typescript
+// app/api/webhooks/coolify/route.ts
+import { NextResponse } from 'next/server';
+
+export async function POST(req: Request) {
+  try {
+    // 1. เช็คความปลอดภัย (ตรวจสอบ Secret Key ที่มาจาก Coolify)
+    const authHeader = req.headers.get('Authorization');
+    if (authHeader !== `Bearer ${process.env.COOLIFY_WEBHOOK_SECRET}`) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    // 2. แกะข้อมูลพัสดุ (Payload) ที่ Coolify ส่งมาให้
+    const payload = await req.json();
+    const { uuid, status, text } = payload; 
+    
+    // 3. นำสถานะล่าสุดไปอัปเดตเว็บของลูกค้าใน Database
+    console.log(`[Coolify] โปรเจกต์ ${uuid} อัปเดตสถานะเป็น: ${status}`);
+    // await db.customerSites.update({ 
+    //   where: { coolifyUuid: uuid }, 
+    //   data: { status: status === 'finished' ? 'ACTIVE' : 'DEPLOYING' }
+    // });
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+```
+
+### ไฟล์ Reference ที่เตรียมไว้แล้ว (ใน Coolify repo)
+
+| ไฟล์ | วางที่ใน `onetapweb_t3` | สถานะ |
+|---|---|---|
+| `PORTAL_COOLIFY_API_SERVICE.ts` | `lib/services/coolify.service.ts` | ✅ พร้อม |
+| `PORTAL_T3_WEBHOOK_RECEIVER.ts` | `app/api/webhooks/coolify/route.ts` | ✅ พร้อม |
+| `PORTAL_T3_SERVER_ACTION.ts` | `app/actions/site.actions.ts` | ✅ พร้อม |
+| `PORTAL_T3_PRISMA_SCHEMA.prisma` | เพิ่มใน `prisma/schema.prisma` | ✅ พร้อม |
+| `PORTAL_T3_ENV_EXAMPLE.env` | เพิ่มใน `.env.local` | ✅ พร้อม |
+| `PORTAL_INTEGRATION_SETUP_GUIDE.md` | คู่มือ Step-by-Step | ✅ พร้อม |
+
+### สิ่งที่ต้องทำ (ต้องทำเอง)
+
+- `[ ]` Deploy `onetapweb_t3` บน Coolify ผ่าน Portal UI
+- `[ ]` สร้าง Coolify API Token (Permission: read, write, deploy)
+- `[ ]` คัดลอกไฟล์ Reference ทั้งหมดใส่ใน `onetapweb_t3` และเติม env vars
+- `[ ]` ตั้งค่า Custom Webhook URL ใน Coolify Notifications Settings
+- `[ ]` ทดสอบ End-to-End Flow: T3 → Coolify API → Webhook กลับมา T3

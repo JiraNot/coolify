@@ -15,9 +15,11 @@ import {
     ExternalLink
 } from 'lucide-react';
 import PortalLayout from '../../Layouts/PortalLayout';
+import ResourceSelectionModal from '../../Components/ResourceSelectionModal';
 
 const ProjectShow = ({ project, user, team }) => {
     const [currentEnvId, setCurrentEnvId] = useState(project.environments[0]?.id);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const currentEnv = project.environments.find(env => env.id === currentEnvId) || project.environments[0];
     const [actioning, setActioning] = useState({ id: null, action: null });
 
@@ -70,12 +72,12 @@ const ProjectShow = ({ project, user, team }) => {
                         <ExternalLink className="w-4 h-4" />
                         Visit URL
                     </button>
-                    <Link 
-                        href={`/portal/project/${project.uuid}/environment/${currentEnv?.uuid}/new`}
+                    <button 
+                        onClick={() => setIsCreateModalOpen(true)}
                         className="bg-white text-black px-4 py-2 rounded-md text-sm font-medium hover:bg-[#eaeaea] transition-all transform hover:scale-[1.02]"
                     >
                         New Resource
-                    </Link>
+                    </button>
                 </div>
             </div>
 
@@ -125,14 +127,13 @@ const ProjectShow = ({ project, user, team }) => {
                                 </div>
 
                                 <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                    <a 
+                                    <Link 
                                         href={resource.url} 
-                                        target="_blank" 
                                         className="p-2 hover:bg-[#111] rounded-md text-[#666] hover:text-white transition-colors"
                                         title="Settings"
                                     >
                                         <Settings className="w-4 h-4" />
-                                    </a>
+                                    </Link>
 
                                     {actioning.id === resource.id ? (
                                         <div className="p-2 text-[#888] flex items-center gap-2 text-xs font-medium">
@@ -169,16 +170,23 @@ const ProjectShow = ({ project, user, team }) => {
                         <div className="py-20 text-center border border-dashed border-[#1f1f1f] rounded-xl text-[#444] text-sm bg-[#020202]">
                             <Layers className="w-8 h-8 mx-auto mb-3 opacity-20" />
                             <p>No resources found in this environment.</p>
-                            <Link 
-                                href={`/portal/project/${project.uuid}/environment/${currentEnv?.uuid}/new`}
+                            <button 
+                                onClick={() => setIsCreateModalOpen(true)}
                                 className="mt-4 text-xs text-blue-500 hover:text-blue-400 transition-colors font-medium inline-block"
                             >
                                 Add your first resource
-                            </Link>
+                            </button>
                         </div>
                     )}
                 </motion.div>
             </div>
+
+            <ResourceSelectionModal 
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                project={project}
+                environment={currentEnv}
+            />
         </>
     );
 };

@@ -2,7 +2,9 @@
 
 ## Frontend
 
--   Livewire and Alpine.js
+-   React.js & Inertia.js (Custom Portal)
+-   Livewire and Alpine.js (Core Dashboard)
+-   Framer Motion (Animations)
 -   Blade (PHP templating engine)
 -   Tailwind CSS
 -   Monaco Editor (Code editor component)

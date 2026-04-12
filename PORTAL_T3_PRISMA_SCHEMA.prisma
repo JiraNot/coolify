@@ -1,0 +1,55 @@
+/**
+ * Prisma Schema Snippet สำหรับ onetapweb_t3
+ * เพิ่ม Model นี้เข้าไปใน prisma/schema.prisma
+ *
+ * แล้วรัน: npx prisma migrate dev --name add_customer_sites
+ */
+
+// ── เพิ่ม Model นี้ใน schema.prisma ──────────────────────────────────────
+
+model CustomerSite {
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // ── ข้อมูลลูกค้า ───────────────────────────────────────────────────────
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // ── ข้อมูลเว็บไซต์ ─────────────────────────────────────────────────────
+  name          String               // ชื่อเว็บ เช่น "ร้านดอกไม้น้องอ้อย"
+  domainName    String    @unique    // โดเมน เช่น "ooydokmai.onetapweb.com"
+  siteType      SiteType             // ประเภท: WORDPRESS, NEXTJS, STATIC ฯลฯ
+  plan          SitePlan             // แผน: STARTER, PRO, BUSINESS
+
+  // ── Coolify Integration ────────────────────────────────────────────────
+  coolifyProjectUuid   String?       // UUID ของ Coolify Project
+  coolifyServiceUuid   String?       // UUID ของ Coolify Service (ใช้ track status)
+  status               SiteStatus   @default(PROVISIONING)
+  lastDeployedAt       DateTime?
+
+  @@index([userId])
+  @@index([coolifyServiceUuid])
+}
+
+enum SiteType {
+  WORDPRESS
+  NEXTJS
+  STATIC
+  CUSTOM
+}
+
+enum SitePlan {
+  STARTER    // 512MB RAM, 1 vCPU
+  PRO        // 1GB RAM, 2 vCPU
+  BUSINESS   // 2GB RAM, 4 vCPU
+}
+
+enum SiteStatus {
+  PROVISIONING  // กำลังสร้าง (รอ Coolify Webhook)
+  ACTIVE        // ใช้งานได้แล้ว
+  DEPLOYING     // กำลัง Re-deploy
+  FAILED        // สร้างไม่สำเร็จ
+  STOPPED       // หยุดชั่วคราว
+  DELETED       // ถูกลบแล้ว
+}

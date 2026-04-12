@@ -17,8 +17,8 @@ class DashboardController extends Controller
         $projects = Project::where('team_id', $team->id)
             ->with(['environments' => function ($query) {
                 $query->withCount([
-                    'applications', 'services', 
-                    'postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs', 'keydbs', 'dragonflies', 'clickhouses'
+                    'applications', 'services',
+                    'postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs', 'keydbs', 'dragonflies', 'clickhouses',
                 ]);
             }])
             ->get()
@@ -29,9 +29,10 @@ class DashboardController extends Controller
                     'name' => $project->name,
                     'description' => $project->description,
                     'environments' => $project->environments->map(function ($env) {
-                        $dbCount = $env->postgresqls_count + $env->redis_count + $env->mongodbs_count + 
-                                   $env->mysqls_count + $env->mariadbs_count + $env->keydbs_count + 
+                        $dbCount = $env->postgresqls_count + $env->redis_count + $env->mongodbs_count +
+                                   $env->mysqls_count + $env->mariadbs_count + $env->keydbs_count +
                                    $env->dragonflies_count + $env->clickhouses_count;
+
                         return [
                             'id' => $env->id,
                             'name' => $env->name,
@@ -100,6 +101,59 @@ class DashboardController extends Controller
             ->where('project_id', $project->id)
             ->firstOrFail();
 
+        $type = request()->query('type');
+
+        // Common data needed for creation (Servers/Destinations)
+        $servers = \App\Models\Server::ownedByCurrentTeam()
+            ->with(['standaloneDockers', 'swarmDockers'])
+            ->get()
+            ->map(function ($server) {
+                return [
+                    'id' => $server->id,
+                    'uuid' => $server->uuid,
+                    'name' => $server->name,
+                    'destinations' => $server->standaloneDockers->concat($server->swarmDockers)->map(function ($dest) {
+                        return [
+                            'id' => $dest->id,
+                            'uuid' => $dest->uuid,
+                            'name' => $dest->name,
+                            'network' => $dest->network,
+                        ];
+                    }),
+                ];
+            });
+
+        if ($type === 'application') {
+            $githubApps = \App\Models\GithubApp::where('team_id', currentTeam()->id)->get();
+
+            return Inertia::render('Project/Resource/Application/New', [
+                'project' => $project,
+                'environment' => $environment,
+                'servers' => $servers,
+                'githubApps' => $githubApps,
+            ]);
+        }
+
+        if ($type === 'database') {
+            return Inertia::render('Project/Resource/Database/New', [
+                'project' => $project,
+                'environment' => $environment,
+                'servers' => $servers,
+                'databaseTypes' => DATABASE_TYPES,
+            ]);
+        }
+
+        if ($type === 'service') {
+            $services = get_service_templates();
+
+            return Inertia::render('Project/Resource/Service/New', [
+                'project' => $project,
+                'environment' => $environment,
+                'servers' => $servers,
+                'services' => $services,
+            ]);
+        }
+
         return Inertia::render('Project/SelectResourceType', [
             'project' => [
                 'uuid' => $project->uuid,
@@ -122,11 +176,17 @@ class DashboardController extends Controller
                 'environment_uuid' => $env->uuid,
                 'database_uuid' => $item->uuid,
             ]);
-        } else {
-            $url = route("project.{$routePrefix}.configuration", [
+        } elseif ($type === 'application') {
+            $url = route('portal.project.application.show', [
                 'project_uuid' => $env->project->uuid,
                 'environment_uuid' => $env->uuid,
-                "{$routePrefix}_uuid" => $item->uuid,
+                'application_uuid' => $item->uuid,
+            ]);
+        } else {
+            $url = route('portal.project.service.show', [
+                'project_uuid' => $env->project->uuid,
+                'environment_uuid' => $env->uuid,
+                'service_uuid' => $item->uuid,
             ]);
         }
 

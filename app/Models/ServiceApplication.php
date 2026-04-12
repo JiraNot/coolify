@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasMetrics;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceApplication extends BaseModel
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasMetrics, SoftDeletes;
 
     protected $guarded = [];
 
@@ -111,6 +112,13 @@ class ServiceApplication extends BaseModel
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function destination(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->service->destination,
+        );
     }
 
     public function persistentStorages()

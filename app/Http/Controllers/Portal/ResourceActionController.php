@@ -23,7 +23,7 @@ class ResourceActionController extends Controller
         $teamId = auth()->user()->currentTeam()->id;
         $resource = getResourceByUuid($uuid, $teamId);
 
-        if (!$resource) {
+        if (! $resource) {
             return abort(404, 'Resource not found.');
         }
 
@@ -54,7 +54,7 @@ class ResourceActionController extends Controller
         $teamId = auth()->user()->currentTeam()->id;
         $resource = getResourceByUuid($uuid, $teamId);
 
-        if (!$resource) {
+        if (! $resource) {
             return abort(404, 'Resource not found.');
         }
 
@@ -80,7 +80,7 @@ class ResourceActionController extends Controller
         $teamId = auth()->user()->currentTeam()->id;
         $resource = getResourceByUuid($uuid, $teamId);
 
-        if (!$resource) {
+        if (! $resource) {
             return abort(404, 'Resource not found.');
         }
 
@@ -101,5 +101,67 @@ class ResourceActionController extends Controller
         }
 
         return redirect()->back()->with('success', 'Resource restarting.');
+    }
+
+    /**
+     * Redeploy/Rebuild a resource.
+     */
+    public function redeploy(Request $request, string $type, string $uuid)
+    {
+        $teamId = auth()->user()->currentTeam()->id;
+        $resource = getResourceByUuid($uuid, $teamId);
+
+        if (! $resource) {
+            return abort(404, 'Resource not found.');
+        }
+
+        $this->authorize('deploy', $resource);
+
+        if ($type === 'application') {
+            queue_application_deployment(
+                application: $resource,
+                deployment_uuid: new Cuid2,
+                force_rebuild: true,
+                is_api: true,
+            );
+        } elseif ($type === 'service') {
+            RestartService::dispatch($resource, pullLatest: true);
+        } else {
+            return abort(400, 'Redeploy only supported for applications and services.');
+        }
+
+        return redirect()->back()->with('success', 'Resource redeployment started.');
+    }
+
+    /**
+     * Delete a resource.
+     */
+    public function delete(Request $request, string $type, string $uuid)
+    {
+        $teamId = auth()->user()->currentTeam()->id;
+        $resource = getResourceByUuid($uuid, $teamId);
+
+        if (! $resource) {
+            return abort(404, 'Resource not found.');
+        }
+
+        $this->authorize('delete', $resource);
+
+        $deleteConfigurations = $request->boolean('delete_configurations', true);
+        $deleteVolumes = $request->boolean('delete_volumes', true);
+        $dockerCleanup = $request->boolean('docker_cleanup', true);
+        $deleteConnectedNetworks = $request->boolean('delete_connected_networks', true);
+
+        \App\Jobs\DeleteResourceJob::dispatch(
+            $resource,
+            $deleteVolumes,
+            $deleteConnectedNetworks,
+            $deleteConfigurations,
+            $dockerCleanup
+        );
+
+        $resource->delete();
+
+        return redirect()->route('portal.dashboard')->with('success', 'Resource deletion started.');
     }
 }

@@ -37,8 +37,8 @@ npm run build                   # production build
 ## Architecture
 
 ### Backend Structure (app/)
-- **Actions/** — Domain actions organized by area (Application, Database, Docker, Proxy, Server, Service, Shared, Stripe, User). Uses `lorisleiva/laravel-actions`.
-- **Livewire/** — All UI components (Livewire 3). Pages organized by domain: Server, Project, Settings, Notifications, etc. This is the primary UI layer — no traditional Blade controllers.
+- **Livewire/** — UI components (Livewire 3) for the core dashboard. This was the primary UI layer, but now coexists with the React Portal.
+- **Http/Controllers/Portal/** — Inertia.js controllers for the Custom Portal (React-based).
 - **Jobs/** — Queue jobs for deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, server management, proxy configuration.
 - **Models/** — Eloquent models. Key models: `Server`, `Application`, `Service`, `Project`, `Environment`, `Team`, plus standalone database models (`StandalonePostgresql`, `StandaloneMysql`, etc.).
 - **Services/** — Business logic services.
@@ -55,8 +55,8 @@ npm run build                   # production build
 - **Proxy** — Traefik reverse proxy managed per server.
 
 ### Frontend
-- Livewire 3 components with Alpine.js for client-side interactivity
-- Blade templates in `resources/views/livewire/`
+- **Custom Portal (Reforged)**: React.js components with Inertia.js (found in `resources/js/portal/`). Uses Framer Motion for animations.
+- **Core Dashboard**: Livewire 3 components with Alpine.js for backend-driven interactivity (found in `app/Livewire/` and `resources/views/livewire/`).
 - Tailwind CSS v4 with `@tailwindcss/forms` and `@tailwindcss/typography`
 - Vite for asset bundling
 

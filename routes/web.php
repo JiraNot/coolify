@@ -116,11 +116,53 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/project/{uuid}', [\App\Http\Controllers\Portal\DashboardController::class, 'show'])->name('portal.project.show');
         Route::get('/project/{project_uuid}/environment/{environment_uuid}/new', [\App\Http\Controllers\Portal\DashboardController::class, 'newResource'])->name('portal.project.resource.new');
         Route::get('/project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}', [\App\Http\Controllers\Portal\DatabaseController::class, 'show'])->name('portal.project.database.show');
+        Route::post('/database/{database_uuid}', [\App\Http\Controllers\Portal\DatabaseController::class, 'update'])->name('portal.project.database.update');
+        Route::post('/database/{database_uuid}/env', [\App\Http\Controllers\Portal\DatabaseController::class, 'storeVariable'])->name('portal.project.database.env.store');
+        Route::delete('/database/{database_uuid}/env/{env_uuid}', [\App\Http\Controllers\Portal\DatabaseController::class, 'deleteVariable'])->name('portal.project.database.env.destroy');
+        Route::get('/project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}', [\App\Http\Controllers\Portal\ApplicationController::class, 'show'])->name('portal.project.application.show');
+        Route::post('/application/{application_uuid}', [\App\Http\Controllers\Portal\ApplicationController::class, 'update'])->name('portal.project.application.update');
+        Route::post('/application/{application_uuid}/env', [\App\Http\Controllers\Portal\ApplicationController::class, 'storeVariable'])->name('portal.project.application.env.store');
+        Route::delete('/application/{application_uuid}/env/{env_uuid}', [\App\Http\Controllers\Portal\ApplicationController::class, 'deleteVariable'])->name('portal.project.application.env.destroy');
+        Route::get('/application/{uuid}/metrics', [\App\Http\Controllers\Portal\ApplicationController::class, 'metrics'])->name('portal.project.application.metrics');
+
+        // Service Portal Routes
+        Route::get('/project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}', [\App\Http\Controllers\Portal\ServiceController::class, 'show'])->name('portal.project.service.show');
+        Route::post('/service/{service_uuid}', [\App\Http\Controllers\Portal\ServiceController::class, 'update'])->name('portal.project.service.update');
+        Route::delete('/service/{service_uuid}', [\App\Http\Controllers\Portal\ServiceController::class, 'destroy'])->name('portal.project.service.destroy');
+        Route::get('/service/{service_uuid}/metrics', [\App\Http\Controllers\Portal\ServiceController::class, 'metrics'])->name('portal.project.service.metrics');
+        Route::get('/service/application/{uuid}/metrics', [\App\Http\Controllers\Portal\ServiceController::class, 'applicationMetrics'])->name('portal.project.service.application.metrics');
+        Route::get('/service/database/{uuid}/metrics', [\App\Http\Controllers\Portal\ServiceController::class, 'databaseMetrics'])->name('portal.project.service.database.metrics');
+        Route::post('/service/{service_uuid}/env', [\App\Http\Controllers\Portal\ServiceController::class, 'storeVariable'])->name('portal.project.service.env.store');
+        Route::delete('/service/{service_uuid}/env/{env_uuid}', [\App\Http\Controllers\Portal\ServiceController::class, 'deleteVariable'])->name('portal.project.service.env.destroy');
+
+        // Resource Logs
+        Route::get('/application/{uuid}/logs', [\App\Http\Controllers\Portal\ApplicationController::class, 'logs'])->name('portal.project.application.logs');
+        Route::get('/database/{uuid}/logs', [\App\Http\Controllers\Portal\DatabaseController::class, 'logs'])->name('portal.project.database.logs');
+        Route::get('/service/{service_uuid}/logs', [\App\Http\Controllers\Portal\ServiceController::class, 'logs'])->name('portal.project.service.logs');
+
+        // Email Settings
+        Route::get('/settings/email', [\App\Http\Controllers\Portal\EmailController::class, 'show'])->name('portal.settings.email');
+        Route::post('/settings/email', [\App\Http\Controllers\Portal\EmailController::class, 'update'])->name('portal.settings.email.update');
+        Route::post('/settings/email/test', [\App\Http\Controllers\Portal\EmailController::class, 'test'])->name('portal.settings.email.test');
 
         // Portal Resource Actions
         Route::post('/resource/{type}/{uuid}/start', [\App\Http\Controllers\Portal\ResourceActionController::class, 'start'])->name('portal.resource.start');
         Route::post('/resource/{type}/{uuid}/stop', [\App\Http\Controllers\Portal\ResourceActionController::class, 'stop'])->name('portal.resource.stop');
         Route::post('/resource/{type}/{uuid}/restart', [\App\Http\Controllers\Portal\ResourceActionController::class, 'restart'])->name('portal.resource.restart');
+        Route::post('/resource/{type}/{uuid}/redeploy', [\App\Http\Controllers\Portal\ResourceActionController::class, 'redeploy'])->name('portal.resource.redeploy');
+
+        // Database specialized deletion
+        Route::delete('/resource/database/{database_uuid}', [\App\Http\Controllers\Portal\DatabaseController::class, 'destroy'])->name('portal.resource.database.delete');
+
+        Route::delete('/resource/{type}/{uuid}', [\App\Http\Controllers\Portal\ResourceActionController::class, 'delete'])->name('portal.resource.delete');
+
+        // New Resource Creation
+        Route::post('/project/{project_uuid}/environment/{environment_uuid}/application', [\App\Http\Controllers\Portal\ResourceController::class, 'storeApplication'])->name('portal.project.resource.application.store');
+        Route::post('/project/{project_uuid}/environment/{environment_uuid}/database', [\App\Http\Controllers\Portal\ResourceController::class, 'storeDatabase'])->name('portal.project.resource.database.store');
+        Route::post('/project/{project_uuid}/environment/{environment_uuid}/service', [\App\Http\Controllers\Portal\ResourceController::class, 'storeService'])->name('portal.project.resource.service.store');
+
+        // Team Switching
+        Route::post('/team/switch/{team_id}', [\App\Http\Controllers\Portal\TeamController::class, 'switchTeam'])->name('portal.team.switch');
     });
 
     Route::get('/subscription', SubscriptionShow::class)->name('subscription.show');
