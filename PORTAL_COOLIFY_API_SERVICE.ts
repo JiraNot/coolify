@@ -1,3 +1,4 @@
+/// <reference path="../projects/onetapweb_t3/node_modules/@types/node/index.d.ts" />
 /**
  * Coolify API Service for onetapweb_t3
  * ไฟล์นี้เป็น wrapper สำหรับเรียก Coolify REST API (/api/v1/)
@@ -173,6 +174,7 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: ${opts.dbPassword}
       WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_CONFIG_EXTRA: '$_SERVER["HTTPS"] = "on"; define("FORCE_SSL_ADMIN", true);'
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.wordpress.rule=Host(\`${opts.domainName}\`)"
