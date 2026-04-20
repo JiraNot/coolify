@@ -1,3 +1,14 @@
+# 🚀 OneTapAI Infrastructure (Coolify v4)
+
+This instance of Coolify manages the **OneTapAI Centralized Brain** architecture.
+
+### 🧠 Centralized Brain Infrastructure
+All AI Agent skills are centralized in the `onetapai` container.
+- **Shared Path**: `/home/dulla/onetap-shared-skills`
+- **Mapping**: Mapped to `/app/.agents/skills` across all agent-enabled containers.
+
+---
+
 <div align="center">
 
 # Coolify
